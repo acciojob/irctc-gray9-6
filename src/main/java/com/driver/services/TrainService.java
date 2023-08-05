@@ -2,6 +2,7 @@ package com.driver.services;
 
 import com.driver.EntryDto.AddTrainEntryDto;
 import com.driver.EntryDto.SeatAvailabilityEntryDto;
+import com.driver.exception.TrainDoesNotExists;
 import com.driver.model.Passenger;
 import com.driver.model.Station;
 import com.driver.model.Ticket;
@@ -14,6 +15,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TrainService {
@@ -111,7 +113,34 @@ public class TrainService {
         //We need to find out the age of the oldest person that is travelling the train
         //If there are no people travelling in that train you can return 0
 
-        return 0;
+        //check this train exists or not
+        Optional<Train> trainOptional = trainRepository.findById(trainId);
+        if(!trainOptional.isPresent()){
+            throw new TrainDoesNotExists("Invalid Train ID");
+        }
+
+        // if it exists then get the train
+        Train train = trainOptional.get();
+
+        // get all the bookings for this train
+        List<Ticket> ticketList = train.getBookedTickets();
+
+        // if there's no person on the train then return 0
+        if(ticketList.size() == 0){
+            return 0;
+        }
+
+        // iterate over this list and find the older person
+        int oldestPersonAge = Integer.MIN_VALUE;
+        for (Ticket ticket : ticketList){
+            List<Passenger> passengerList = ticket.getPassengersList();
+
+            for (Passenger passenger : passengerList){
+                oldestPersonAge = Math.max(oldestPersonAge,passenger.getAge());
+            }
+        }
+
+        return oldestPersonAge;
     }
 
     public List<Integer> trainsBetweenAGivenTime(Station station, LocalTime startTime, LocalTime endTime){
