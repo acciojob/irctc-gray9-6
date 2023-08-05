@@ -65,7 +65,14 @@ public class TrainService {
         //Inshort : a train has totalNo of seats and there are tickets from and to different locations
         //We need to find out the available seats between the given 2 stations.
 
-        Train train = trainRepository.findById(seatAvailabilityEntryDto.getTrainId()).get();
+        Optional<Train> trainOptional = trainRepository.findById(seatAvailabilityEntryDto.getTrainId());
+        if(!trainOptional.isPresent()){
+            throw new TrainDoesNotExists("Invalid Train Id");
+        }
+
+        // else get the train
+        Train train = trainOptional.get();
+
         List<Ticket> ticketList = train.getBookedTickets();
         String [] trainRoute = train.getRoute().split(",");
         HashMap<String ,Integer> map = new HashMap<>();
@@ -117,7 +124,6 @@ public class TrainService {
 //        }
 //
 //        return 0;
-
         Train train=trainRepository.findById(trainId).get();
         String reqStation=station.toString();
         String arr[]=train.getRoute().split(",");
@@ -149,6 +155,7 @@ public class TrainService {
 
 
         return noOfPassengers;
+
     }
 
     public Integer calculateOldestPersonTravelling(Integer trainId){
@@ -194,7 +201,6 @@ public class TrainService {
         //You can assume that the date change doesn't need to be done ie the travel will certainly happen with the same date (More details
         //in problem statement)
         //You can also assume the seconds and milli seconds value will be 0 in a LocalTime format.
-
         List<Integer> TrainList = new ArrayList<>();
         List<Train> trains = trainRepository.findAll();
         for(Train t:trains){
@@ -214,6 +220,7 @@ public class TrainService {
             }
         }
         return TrainList;
+
     }
 
 }
