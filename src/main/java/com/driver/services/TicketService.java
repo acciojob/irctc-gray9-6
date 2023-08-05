@@ -86,16 +86,20 @@ public class TicketService {
         int fromStationIdx = -1;
         int toStationIdx = -1;
 
+        String fromDestination = bookTicketEntryDto.getFromStation().toString();
+        String toDestination = bookTicketEntryDto.getToStation().toString();
+
         for(int i = 0; i< route.length; i++){
             String currStation = route[i];
-            if(currStation.equals(bookTicketEntryDto.getFromStation())){
+            if(currStation.equals(fromDestination)){
                 fromStationIdx = i;
-            } else if (currStation.equals(bookTicketEntryDto.getToStation())) {
+            } if (currStation.equals(toDestination)) {
                 toStationIdx = i;
             }
         }
 
         if(fromStationIdx == -1 ){
+            System.out.println(fromStationIdx);
             throw new Exception("Invalid stations-1");
         }
         if(toStationIdx == -1 ){
@@ -129,9 +133,10 @@ public class TicketService {
         passenger.getBookedTickets().add(bookTicket); // add the tickets in the passenger
 
         // save the train it will save both
-        trainRepository.save(train);
+        Train savedTrain = trainRepository.save(train);
 
-        return ticketRepository.save(bookTicket).getTicketId();
+        Ticket ticket = savedTrain.getBookedTickets().get(savedTrain.getBookedTickets().size()-1);
+        return ticket.getTicketId();
 
     }
 }
