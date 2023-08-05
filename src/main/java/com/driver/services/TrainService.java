@@ -124,7 +124,14 @@ public class TrainService {
 //        }
 //
 //        return 0;
-        Train train=trainRepository.findById(trainId).get();
+        Optional<Train> trainOptional = trainRepository.findById(trainId);
+        if(!trainOptional.isPresent()){
+            throw new TrainDoesNotExists("Invalid Train Id");
+        }
+
+        // get the train
+        Train train = trainOptional.get();
+
         String reqStation=station.toString();
         String arr[]=train.getRoute().split(",");
         boolean found=false;
@@ -137,7 +144,7 @@ public class TrainService {
         }
         //if the trainId is not passing through that station
 
-        if(found==false){
+        if(!found){
             throw new Exception("Train is not passing from this station");
         }
 
@@ -152,8 +159,6 @@ public class TrainService {
 
 
         //  in a happy case we need to find out the number of such people.
-
-
         return noOfPassengers;
 
     }
